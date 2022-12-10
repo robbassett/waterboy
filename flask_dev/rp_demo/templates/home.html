@@ -4,11 +4,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bad Mama Jama</title>
+    <title>The Best Taco Stand in Hell</title>
 </head>
 <body>
     <h1>
-        Hello, World!
+        Hello, Motherfucker!
     </h1>
+    <ul>
+        {% for person in people %}
+        <li>{{ person.fname }} {{ person.lname }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
