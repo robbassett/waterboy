@@ -1,0 +1,15 @@
+<!-- templates/home.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Houseplant Control Pad</title>
+</head>
+<body>
+    <h1>HOUSPLANTS</h1>
+    {% for plant in plants %}
+    <h2>{{ plant.plant_name }} : {{ plant.genus }} - {{ plant.species }}</h2>
+    {% endfor %}
+</body>
+</html>

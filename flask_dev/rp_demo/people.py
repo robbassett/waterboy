@@ -6,7 +6,6 @@ from models import Person, people_schema, person_schema
 
 def read_all():
     people = Person.query.all()
-    print(people)
     return people_schema.dump(people)
 
 def create(person):
