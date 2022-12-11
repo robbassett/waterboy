@@ -37,7 +37,7 @@ class Plant(db.Model):
     plant_name = db.Column(db.String,unique=True)
     genus = db.Column(db.String)
     species = db.Column(db.String)
-    trace = db.relationship(
+    traces = db.relationship(
         Value,
         backref="plant",
         cascade="all, delete, delete-orphan",

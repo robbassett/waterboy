@@ -2,8 +2,8 @@
 
 openapi: 3.0.0
 info:
-  title: "RP Flask REST API"
-  description: "An API about people and notes"
+  title: "Waterboy Flask REST API"
+  description: "An API for automated plant irrigation"
   version: "1.0.0"
 
 servers:
@@ -31,6 +31,19 @@ components:
           type: "string"
         species:
           type: "string"
+    Value:
+      type: "object"
+      required:
+        - plant_name
+        - measure_name
+      properties:
+        plant_name:
+          type: "string"
+        measure_name:
+          type: "string"
+        value:
+          type: "number"
+
   parameters:
     measure_name:
       name: "measure_name"
@@ -42,6 +55,13 @@ components:
     plant_name:
       name: "plant_name"
       description: "Name of plant to get"
+      in: path
+      required: True
+      schema:
+        type: "string"
+    value:
+      name: "value"
+      description: "Value of trace"
       in: path
       required: True
       schema:
@@ -73,3 +93,58 @@ paths:
       responses:
         "201":
           description: "Successfully created a plant"
+  /plant/{plant_name}:
+    get:
+      tags:
+        - Plants
+      operationId: "plants.get"
+      summary: "Get a plant"
+      parameters:
+        - $ref: "#/components/parameters/plant_name"
+      responses:
+        "200":
+          description: "Successfully retrieved plant"
+    put:
+      tags:
+        - Plants
+      operationId: "plants.update"
+      summary: "Update a plant"
+      parameters:
+        - $ref: "#/components/parameters/plant_name"
+      responses:
+        "201":
+          description: "Successfully updated plant"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: "plant"
+              $ref: "#/components/schemas/Plant"
+    delete:
+      tags:
+        - Plants
+      operationId: "plants.delete"
+      summary: "Delete a plant"
+      parameters:
+        - $ref: "#/components/parameters/plant_name"
+      responses:
+        "204":
+          description: "Successfully deleted a plant"
+  /trace:
+    post:
+      tags:
+        - Traces
+      operationId: "traces.create"
+      summary: "Add value to trace"
+      requestBody:
+        description: "Value to add"
+        required: True
+        content:
+          application/json:
+            schema:
+              x-body-name: "value"
+              $ref: "#/components/schemas/Value"
+      responses:
+        "201":
+          description: "Successfully added trace value"
+        
