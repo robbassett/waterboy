@@ -1,0 +1,41 @@
+<!-- templates/home.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Houseplant Control Pad</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function plot_trace(plant_name) {
+            $.getJSON({
+                url: "/plotting", data: {'data': plant_name}, success: function (result) {
+                    Plotly.newPlot("chart", result, {});;
+                }
+            })
+        }
+    </script>
+    <h1>HOUSPLANTS</h1>
+</head>
+<body>
+    {% for plant in plants %}
+    <h2>{{ plant.plant_name }} : {{ plant.genus }} - {{ plant.species }}</h2>
+    {% endfor %}
+    <label for="plant-plot">Choose Plant:</label>
+    <select name="plant-plot" id="plant-plot" onchange="plot_trace(this.value)">
+        {% for plant in plants %}
+            <option value={{ plant.plant_name }}>
+                {{ plant.plant_name }}
+            </option>
+        {% endfor %}
+    </select>
+    <div id="chart" class="chart"></div>
+</body>
+
+<script>
+    d = plot_trace("Jerry");
+    Plotly.newPlot('chart', d, {});
+</script>
+
+</html>

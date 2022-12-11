@@ -1,9 +1,14 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import config
 from models import Plant
+from plotting import plot_trace
 
 app = config.connex_app
 app.add_api(config.basedir / "swagger.yml")
+
+@app.route("/plotting", methods=["POST", "GET"])
+def make_plot():
+    return plot_trace(request.args.get('data'))
 
 @app.route("/")
 def home():
