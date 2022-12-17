@@ -3,7 +3,7 @@
 import plotly.graph_objects as go
 import plotly
 import json
-from datetime import datetime
+from datetime import datetime,timedelta
 import numpy as np
 
 from config import db
@@ -19,9 +19,15 @@ def plot_trace(plant_name,measure_name='Soil Moisture',db=db):
     values = Value.query.filter(
         (Value.plant_id == plant_id)&(Value.measure_id == measure_id)
     ).all()
-    
+
     x = np.array([value.timestamp for value in values])
     y = np.array([value.value for value in values])
+
+    xend = x.max()+timedelta(minutes=5)
+    xstart = xend-timedelta(hours=7)
+    tsel = list(np.where(x >= xstart)[0])
+    x = x[tsel]
+    y = y[tsel]
 
     tord = list(np.argsort(x))
     fig = go.Figure()
@@ -30,6 +36,8 @@ def plot_trace(plant_name,measure_name='Soil Moisture',db=db):
             x=x[tord],y=y[tord]
         )
     )
+
+    fig.update_layout(xaxis_range=[xstart,xend])
 
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
