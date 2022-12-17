@@ -15,5 +15,9 @@ def home():
     plants = Plant.query.all()
     return render_template("home.html", plants=plants)
 
+@app.route("/dashboard/")
+def dashboard():
+    return render_template("dashboard.html")
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
