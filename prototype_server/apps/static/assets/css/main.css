@@ -1512,7 +1512,7 @@ h1.intro-header::before {
 }
 
 .home-image-right img {
-  vertical-align: bottom;
+  vertical-align: center;
   width: 75%;
 }
 
