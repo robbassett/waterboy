@@ -4,6 +4,7 @@ from models import Plant
 from plotting import get_trace
 import os
 from jinja2 import TemplateNotFound
+import numpy as np
 
 app = config.connex_app
 app.add_api(config.basedir / "swagger.yml") 
@@ -34,7 +35,14 @@ def home():
 @app.route("/dashboard/")
 def dashboard():
     plants = Plant.query.all()
-    return render_template("/home/dashboard.html", plants=plants)
+    water = []
+    for plant in plants: 
+        try:
+            t = str(np.around(float(get_trace(plant.plant_name)[:-1].split(',')[-1]),1))
+        except:
+            t = '10.0'
+        water.append(t)
+    return render_template("/home/dashboard.html", plants=plants, water=water)
 
 @app.route('/<template>')
 def route_template(template):

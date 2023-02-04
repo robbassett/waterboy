@@ -372,10 +372,10 @@
   fill: #ffffff; }
 
 .ct-series-g .ct-point, .ct-series-g .ct-line, .ct-series-g .ct-bar, .ct-series-g .ct-slice-donut {
-  stroke: #F8BD7A; }
+  stroke: #4188e6;}
 
 .ct-series-g .ct-slice-pie, .ct-series-g .ct-slice-donut-solid, .ct-series-g .ct-area {
-  fill: #F8BD7A; }
+  fill: #4188e6; }
 
 .ct-square {
   display: block;
@@ -9176,7 +9176,7 @@ textarea.form-control-lg {
 
 .bg-yellow-100 {
   --bs-bg-opacity: 1;
-  background-color: rgba(var(--bs-yellow-100-rgb), var(--bs-bg-opacity)) !important; }
+  background-color: rgba(var(--bs-blue-100-rgb), var(--bs-bg-opacity)) !important; }
 
 .bg-yellow-200 {
   --bs-bg-opacity: 1;
@@ -16687,9 +16687,8 @@ label {
   font-weight: 500; }
 
 .ct-series-g .ct-grid {
-  stroke: #F8BD7A;
-  stroke-width: 2px;
-  stroke-dasharray: 2px; }
+  stroke: #07006b;
+  stroke-width: 2px;}
 
 .ct-series-g .ct-label.ct-horizontal.ct-end {
   margin-left: -9px;
