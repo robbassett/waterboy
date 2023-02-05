@@ -24,7 +24,7 @@ def get_trace(plant_name,measure_name='Soil Moisture',db=db):
     y = np.array([value.value for value in values])
 
     xend = x.max()+timedelta(minutes=5)
-    xstart = xend-timedelta(hours=2)
+    xstart = xend-timedelta(hours=24)
     tsel = list(np.where(x >= xstart)[0])
     x = x[tsel]
     y = y[tsel]
