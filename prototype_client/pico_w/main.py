@@ -13,6 +13,9 @@ WLAN = network.WLAN(network.STA_IF)
 WLAN.active(True)
 WLAN.connect(SSID,PASSWORD)
 
+# Pause while device connects to WiFi
+while not WLAN.isconnected(): pass
+
 WAIT_TIME = 60
 PLANT_NAME = 'Johnny'
 GENUS = 'Hamburgerium'
