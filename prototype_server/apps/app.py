@@ -36,13 +36,20 @@ def home():
 def dashboard():
     plants = Plant.query.all()
     water = []
+    light = []
     for plant in plants: 
         try:
             t = str(np.around(float(get_trace(plant.plant_name)[:-1].split(',')[-1]),1))
         except:
             t = '10.0'
         water.append(t)
-    return render_template("/home/dashboard.html", plants=plants, water=water)
+
+        try:
+            t = str(np.around(float(get_trace(plant.plant_name,measure_name="Light")[:-1].split(',')[-1]),1))
+        except:
+            t = '10.0'
+        light.append(t)
+    return render_template("/home/dashboard.html", plants=plants, water=water, light=light)
 
 @app.route('/<template>')
 def route_template(template):
