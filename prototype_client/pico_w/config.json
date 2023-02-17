@@ -1,0 +1,17 @@
+{
+    "logging":false,
+    "sensors":{
+        "soil_pin":26,
+        "light_pin":27
+    },
+    "server":{
+        "ssid":"XXXX",
+        "password":"XXXX",
+        "base_url":"XXXX"
+    },
+    "plant":{
+        "name":"Johnny",
+        "genus":"Hamburgerium",
+        "species":"Yummium"
+    }
+}
