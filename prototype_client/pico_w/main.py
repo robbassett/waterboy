@@ -5,29 +5,42 @@ from utime import sleep
 from machine import ADC,Pin
 import network
 import urequests
+import os
+import ujson
 
-SSID = "XXX"
-PASSWORD = "XXX"
-BASE_URL = "XXX"
+with open('./config.json') as fp:
+    config = ujson.load(fp)
+
+if config['logging']:
+    log_file = open("/pico_log.txt","a")
+    os.dupterm(log_file)
+
+print("Connecting to wifi...")
+
+SSID = config['server']['ssid']
+PASSWORD = config['server']['password']
+BASE_URL = config['server']['base_url']
 WLAN = network.WLAN(network.STA_IF)
 WLAN.active(True)
 WLAN.connect(SSID,PASSWORD)
 
-# Pause while device connects to WiFi
 while not WLAN.isconnected(): pass
+print("Connected!")
 
-WAIT_TIME = 60
-PLANT_NAME = 'Johnny'
-GENUS = 'Hamburgerium'
-SPECIES = 'Yummium'
+WAIT_TIME = 30
+PLANT_NAME = config['plant']['name']
+GENUS = config['plant']['genus']
+SPECIES = config['plant']['species']
 
-# SOIL SENSOR ANALOG OUT
-# TO PICO PIN 26
-soil_sensor = ADC(26)
+soil_sensor = ADC(config['sensors']['soil_pin'])
+light_sensor = ADC(config['sensors']['light_pin'])
 
 def read_soil_sensor(maxval=65535,minval=30600):
     normed = (soil_sensor.read_u16()-minval)/(maxval-minval)
     return 100.*(1.-normed)
+
+def read_light_sensor():
+    return light_sensor.read_u16()
 
 def startup(base_url=BASE_URL):
     r = urequests.get(base_url+'/api/plant/'+PLANT_NAME)
@@ -50,11 +63,18 @@ def post_value(value,base_url=BASE_URL,measure_name="Soil Moisture"):
     r.close()
 
 led = Pin("LED", Pin.OUT)
+print("Checking if plant in DB...")
 startup()
+print("Starting monitor...")
 while True:
     led.toggle()
     value = read_soil_sensor()
     post_value(value)
-    sleep(2)
+    print('soil value',value)
+    value = read_light_sensor()
+    post_value(value,measure_name="Light")
+    print('light value',value)
+    sleep(1)
     led.toggle()
     sleep(WAIT_TIME)
+
