@@ -40,17 +40,3 @@ def get_trace(plant_name,measure_name='Soil Moisture',db=db):
 
     out = json.dumps([list(y),list(y2)])
     return out
-
-    tord = list(np.argsort(x))
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=x[tord],y=y[tord]
-        )
-    )
-
-    fig.update_layout(xaxis_range=[xstart,xend])
-
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-    return graphJSON
