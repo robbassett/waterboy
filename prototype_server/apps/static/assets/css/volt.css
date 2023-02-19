@@ -321,7 +321,7 @@
 
 .ct-line {
   fill: none;
-  stroke-width: 4px; }
+  stroke-width: 5px; }
 
 .ct-area {
   stroke: none;
@@ -336,16 +336,16 @@
   stroke-width: 60px; }
 
 .ct-series-a .ct-point, .ct-series-a .ct-line, .ct-series-a .ct-bar, .ct-series-a .ct-slice-donut {
-  stroke: #262B40; }
+  stroke: #2361ce; }
 
 .ct-series-a .ct-slice-pie, .ct-series-a .ct-slice-donut-solid, .ct-series-a .ct-area {
-  fill: #262B40; }
+  fill: #2361ce; }
 
 .ct-series-b .ct-point, .ct-series-b .ct-line, .ct-series-b .ct-bar, .ct-series-b .ct-slice-donut {
-  stroke: #F8BD7A; }
+  stroke: #f0bc74; }
 
 .ct-series-b .ct-slice-pie, .ct-series-b .ct-slice-donut-solid, .ct-series-b .ct-area {
-  fill: #F8BD7A; }
+  fill: #f0bc74; }
 
 .ct-series-c .ct-point, .ct-series-c .ct-line, .ct-series-c .ct-bar, .ct-series-c .ct-slice-donut {
   stroke: #2CA58D; }

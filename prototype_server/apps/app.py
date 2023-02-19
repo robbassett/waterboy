@@ -39,16 +39,13 @@ def dashboard():
     light = []
     for plant in plants: 
         try:
-            t = str(np.around(float(get_trace(plant.plant_name)[:-1].split(',')[-1]),1))
+            t = get_trace(plant.plant_name).split('], [')
+            t1 = str(np.around(float(t[0][:-1].split(',')[-1]),1))
+            t2 = str(np.around(float(t[1][:-2].split(',')[-1]),1))
         except:
-            t = '10.0'
-        water.append(t)
-
-        try:
-            t = str(np.around(float(get_trace(plant.plant_name,measure_name="Light")[:-1].split(',')[-1]),1))
-        except:
-            t = '10.0'
-        light.append(t)
+            t1,t2 = '10.0','10.0'
+        water.append(t1)
+        light.append(t2)
     return render_template("/home/dashboard.html", plants=plants, water=water, light=light)
 
 @app.route('/<template>')
