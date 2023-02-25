@@ -4,6 +4,12 @@
         "soil_pin":26,
         "light_pin":27
     },
+    "pump":{
+        "pin":16,
+        "freq":100000,
+        "duty":32768,
+        "ontime":1.5
+    },
     "server":{
         "ssid":"XXXX",
         "password":"XXXX",
