@@ -27,7 +27,8 @@ WLAN.connect(SSID,PASSWORD)
 while not WLAN.isconnected(): pass
 print("Connected!")
 
-WAIT_TIME = 30
+WAIT_TIME = 10800
+WAIT_TIME -= 1
 PLANT_NAME = config['plant']['name']
 GENUS = config['plant']['genus']
 SPECIES = config['plant']['species']
@@ -66,11 +67,22 @@ led = Pin("LED", Pin.OUT)
 print("Checking if plant in DB...")
 startup()
 print("Starting monitor...")
+check_ss = True
 while True:
     led.toggle()
+<<<<<<< Updated upstream
     value = read_soil_sensor()
     post_value(value)
     print('soil value',value)
+=======
+    if check_ss:
+        raw,value = read_soil_sensor()
+        post_value(value)
+        post_value(raw,measure_name="Soil Moisture Raw")
+        check_ss = False
+    else:
+        check_ss = True
+>>>>>>> Stashed changes
     value = read_light_sensor()
     post_value(value,measure_name="Light")
     print('light value',value)
