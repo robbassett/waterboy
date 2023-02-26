@@ -7,7 +7,8 @@ from config import app, db
 from models import Measure
 
 MEASURES = [
-    {"measure_name":"Soil Moisture","measure_units":"wfv"},
+    {"measure_name":"Soil Moisture","measure_units":"percent"},
+    {"measure_name":"Soil Moisture Raw","measure_units":"??"},
     {"measure_name":"Light","measure_units":"lux"}
 ]
 
