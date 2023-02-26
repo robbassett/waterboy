@@ -7,12 +7,12 @@
 import requests as req
 from talker import Talker
 
-PLANT_NAME = 'Johnny'
-GENUS = 'Hamburgerium'
-SPECIES = 'Yummium'
+PLANT_NAME = 'Freddy'
+GENUS = 'Plantius'
+SPECIES = 'Maximus'
 BASE_URL = "http://127.0.0.1:8000"
 
-WAIT_TIME = 60
+WAIT_TIME = 2700
 
 def startup(base_url=BASE_URL):
     r = req.get(base_url+'/api/plant/'+PLANT_NAME)
@@ -41,4 +41,9 @@ if __name__ == "__main__":
         pico_coms.send('read_soil_sensor()')
         value = float(pico_coms.receive())
         post_value(value)
+
+        pico_coms.send('read_light_sensor()')
+        value = float(pico_coms.receive())
+        post_value(value,measure_name="Light")
+
         sleep(WAIT_TIME)

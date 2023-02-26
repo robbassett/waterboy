@@ -2,7 +2,7 @@
 
 # to be saved on raspberry pi pico w
 from utime import sleep
-from machine import ADC,Pin
+from machine import ADC,Pin,PWM
 import network
 import urequests
 import os
@@ -35,13 +35,23 @@ SPECIES = config['plant']['species']
 
 soil_sensor = ADC(config['sensors']['soil_pin'])
 light_sensor = ADC(config['sensors']['light_pin'])
+water_pump = PWM(Pin(config['pump']['pin'],Pin.OUT))
+water_pump.freq(config['pump']['freq'])
+water_pump_duty = config['pump']['duty']
+water_pump_time = config['pump']['ontime']
 
 def read_soil_sensor(maxval=65535,minval=30600):
-    normed = (soil_sensor.read_u16()-minval)/(maxval-minval)
-    return 100.*(1.-normed)
+    raw = soil_sensor.read_u16()
+    normed = (raw-minval)/(maxval-minval)
+    return raw,100.*(1.-normed)
 
 def read_light_sensor():
     return light_sensor.read_u16()
+
+def run_pump():
+    water_pump.duty_u16(water_pump_duty)
+    sleep(water_pump_time)
+    water_pump.duty_u16(0)
 
 def startup(base_url=BASE_URL):
     r = urequests.get(base_url+'/api/plant/'+PLANT_NAME)
@@ -70,11 +80,6 @@ print("Starting monitor...")
 check_ss = True
 while True:
     led.toggle()
-<<<<<<< Updated upstream
-    value = read_soil_sensor()
-    post_value(value)
-    print('soil value',value)
-=======
     if check_ss:
         raw,value = read_soil_sensor()
         post_value(value)
@@ -82,10 +87,8 @@ while True:
         check_ss = False
     else:
         check_ss = True
->>>>>>> Stashed changes
     value = read_light_sensor()
     post_value(value,measure_name="Light")
-    print('light value',value)
     sleep(1)
     led.toggle()
     sleep(WAIT_TIME)
