@@ -30,6 +30,7 @@ def get_trace(plant_name,measure_name='Soil Moisture',db=db):
         (Value.plant_id == plant_id)&(Value.measure_id == measure_id)
     ).all()
 
+    x2 = np.array([value.timestamp for value in values])
     y2 = np.array([value.value for value in values])
 
     xend = x.max()+timedelta(minutes=5)
@@ -37,6 +38,26 @@ def get_trace(plant_name,measure_name='Soil Moisture',db=db):
     tsel = list(np.where(x >= xstart)[0])
     x = x[tsel]
     y = y[tsel]
+    xo = [(_-xend).total_seconds()/3600. for _ in x]
 
-    out = json.dumps([list(y),list(y2)])
+
+    xend = x2.max()+timedelta(minutes=5)
+    xstart = xend-timedelta(hours=48)
+    tsel = list(np.where(x2 >= xstart)[0])
+    x2 = x2[tsel]
+    y2 = y2[tsel]
+
+    x2o = [(_-xend).total_seconds()/3600. for _ in x2]
+
+    yo = []
+    for _x in x2o:
+        print(np.abs(np.array(xo)-_x)*3600.)
+        if np.abs((np.array(xo)-_x)*3600.).min() < 12:
+            yo.append(y[np.argmin(np.abs((np.array(xo)-_x)))])
+        else:
+            yo.append('null')
+
+    x2o = [datetime.strftime(_,"%d/%m/%y %H:%M:%S") for _ in x2]
+
+    out = json.dumps([list(yo),list(y2),list(x2o)])
     return out

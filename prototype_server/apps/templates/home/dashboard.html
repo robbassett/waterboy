@@ -117,7 +117,9 @@
 
         $.getJSON({
             url: "/plotting", data: {'data': plantName}, success: function (result) {
+                console.log(result)
                 new Chartist.Line('.ct-chart', {
+                labels:result[2],
                 series: [
                     result[0],
                     result[1]
@@ -134,6 +136,10 @@
                     showGrid: true,
                     divisor: 5
                 },
+                lineSmooth: Chartist.Interpolation.cardinal({
+                    fillHoles: true,
+                }),
+                low: 0,
                 plugins: [
                 Chartist.plugins.tooltip()
                 ],
