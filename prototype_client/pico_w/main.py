@@ -84,14 +84,12 @@ while True:
     led.toggle()
     if check_ss:
         raw,value = read_soil_sensor()
-        print(value)
         post_value(value)
         post_value(raw,measure_name="Soil Moisture Raw")
         check_ss = False
     else:
         check_ss = True
     raw,value = read_light_sensor()
-    print(value)
     post_value(value,measure_name="Light")
     post_value(raw,measure_name="Light Raw")
     sleep(1)
