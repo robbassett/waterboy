@@ -16,9 +16,9 @@
                     <div class="card-header d-sm-flex flex-row align-items-center flex-0">
                         <div class="col-12">
                             <p class="fs-5 fw-normal mb-2 text-white">Select Plant</p>
-                            <select class="form-select" name="plant-profile" id="plant-profile" onchange="update_profile(this.value)">
+                            <select class="form-select" name="plant-profile" id="plant-profile">
                                 {% for plant in plants %}
-                                    <option value="{{ config.ASSETS_ROOT }}/images/{{ plant.plant_name }}.jpeg">
+                                    <option value="{{ config.ASSETS_ROOT }}/images/{{ plant.plant_name }}.jpeg|{{ plant.plant_name }}|{{ plant.genus }}|{{ plant.species }}">
                                         {{ plant.plant_name }} 
                                     </option>
                                 {% endfor %}
@@ -38,42 +38,17 @@
                             <img id="plant-image">
                         </div>
                         <div class="col-lg-4 col-sm-6">
-                            <div class="mb-3">
-                                <label for="birthday">Birthday</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <svg class="icon icon-xs text-gray-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
-                                    </span>
-                                    <input data-datepicker="" class="form-control" id="birthday" type="text" placeholder="dd/mm/yyyy" required>                                               
-                                </div>
+                            <!-- Info-->
+                            <div class="d-block mb-3 mb-sm-0">
+                                <h2 class="fs-3 fw-extrabold text-gray-700" id="plant-name"></h2>
+                                <div class="fs-5 fw-normal mb-2 text-gray-500" id="plant-info"></div>
                             </div>
+                            <!-- End Info -->
+                            <hr>
                             <!-- Form -->
                             <div class="mb-3">
-                                <label for="disabledTextInput">Name</label>
-                                <input type="text" id="disabledTextInput" class="form-control" placeholder="Disabled input" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="disabledSelect">Disabled select menu</label>
-                                <select id="disabledSelect" class="form-control" disabled>
-                                <option>Disabled select</option>
-                                </select>
-                            </div>
-                            <!-- End of Form -->
-                            <!-- Form -->
-                            <div class="mb-4">
-                                <label class="my-1 me-2" for="country">Country</label>
-                                <select class="form-select" id="country" aria-label="Default select example">
-                                    <option selected>Open this select menu</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                    <option value="3">Three</option>
-                                </select>
-                            </div>
-                            <!-- End of Form -->
-                            <!-- Form -->
-                            <div class="mb-3">
-                                <label for="formFile" class="form-label">Default file input example</label>
-                                <input class="form-control" type="file" id="formFile">
+                                <label for="imageFile" class="form-label">Upload New Image</label>
+                                <input class="form-control" type="file" id="imageFile">
                             </div>
                             <!-- End of Form -->
                         </div>
@@ -91,15 +66,48 @@
 {% block javascripts %}
 
 <script>
-    function notEmpty(){
+    function getImage(){
 
         var e = document.getElementById("plant-profile");
-        var src = e.options[e.selectedIndex].value
-        document.getElementById('plant-image').src = src;
+        var data = e.options[e.selectedIndex].value.split("|");
+        var plantName = data[1]
+        var plantInfo = data[2]+' '+data[3]
+        document.getElementById('plant-info').innerHTML = plantInfo;
+        document.getElementById('plant-name').innerHTML = plantName;
+        document.getElementById('plant-image').src = data[0];
     }
-    notEmpty()
+    getImage()
       
-    document.getElementById("plant-profile").onchange = notEmpty;
+    document.getElementById("plant-profile").onchange = getImage;
+</script>
+
+<script>
+    window.onload = function() {
+        var el = document.getElementById("plant-profile");
+        var image_loc = el.options[el.selectedIndex].value
+        var fileInput = document.getElementById('imageFile');
+        var plant_image = document.getElementById("plant-image");
+
+        fileInput.addEventListener('change', function(e) {
+            var file = fileInput.files[0];
+            var imageType = /image.*/;
+
+            if (file.type.match(imageType)) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+
+                    var img = new Image();
+                    img.src = reader.result;
+
+                    plant_image.src = img.src;
+                }
+
+                reader.readAsDataURL(file); 
+            }
+        });
+
+    }
 </script>
 
 {% endblock javascripts %}

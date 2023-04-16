@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import config
 from models import Plant
 from plotting import get_trace
+from image import upload_image
 import os
 from jinja2 import TemplateNotFound
 import numpy as np
@@ -24,7 +25,7 @@ def get_segment(request):
     except:
         return None
 
-@app.route("/plotting", methods=["POST", "GET"])
+@app.route("/plotting", methods=["GET"])
 def make_plot():
     return get_trace(request.args.get('data'))
 
