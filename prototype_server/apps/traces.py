@@ -25,4 +25,7 @@ def create(value):
     plant.traces.append(new_value)
     db.session.commit()
 
-    return value_schema.dump(new_value),201
+    response = value_schema.dump(new_value)
+    response["pump"] = True
+
+    return response,201

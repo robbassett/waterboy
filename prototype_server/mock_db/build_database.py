@@ -38,6 +38,8 @@ class Plant(Base):
     plant_name = Column(String,unique=True,nullable=False)
     genus = Column(String)
     species = Column(String)
+    dry_hours = Column(Float)
+    pump_time = Column(Float)
 
 class Value(Base):
     __tablename__ = "value"
@@ -59,14 +61,18 @@ def generate_dummy_data(
     plant_names = ["Jimmy","Johnny","Jerry"],
     plant_genus = ["Googly","Moogly","Halatosis"],
     plant_species = ["Tree","Shrub","Mushroomus"],
+    plant_drydays = [1,2,3],
+    plant_pumptime = [2,2,2],
     nval = 15, timedelt = 2
 ):
 
     import numpy as np
 
     MEASURES = [
-        {"measure_name":"Soil Moisture","measure_units":"wfv"},
-        {"measure_name":"Light","measure_units":"lux"}
+        {"measure_name":"Soil Moisture","measure_units":"percent"},
+        {"measure_name":"Soil Moisture Raw","measure_units":"??"},
+        {"measure_name":"Light","measure_units":"percent"},
+        {"measure_name":"Light Raw","measure_units":"lux"}
     ]
 
     with Session(engine) as session:
@@ -75,9 +81,9 @@ def generate_dummy_data(
             session.add(measure)
 
         pid = 0
-        for n,g,s in zip(plant_names,plant_genus,plant_species):
+        for n,g,s,dd,pt in zip(plant_names,plant_genus,plant_species,plant_drydays,plant_pumptime):
             pid += 1
-            pdat = {"plant_name":n,"genus":g,"species":s}
+            pdat = {"plant_name":n,"genus":g,"species":s,"dry_hours":dd*24.,"pump_time":pt}
             plant = Plant(**pdat)
             session.add(plant)
 
