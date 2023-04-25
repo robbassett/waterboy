@@ -57,6 +57,13 @@ class Value(Base):
 
 Base.metadata.create_all(bind=engine)
 
+vals = [25000]*10 + [50000]*5
+
+def pval(raw,maxval=51000,minval=24400):
+    
+    normed = (raw-minval)/(maxval-minval)
+    return 100.*(1.-normed)
+
 def generate_dummy_data(
     plant_names = ["Jimmy","Johnny","Jerry"],
     plant_genus = ["Googly","Moogly","Halatosis"],
@@ -89,13 +96,26 @@ def generate_dummy_data(
 
             for _ in range(nval):
                 ctime = dt.datetime.now() - dt.timedelta(hours=timedelt*(nval-(_+1)))
-                for mid in [1,2]:
-                    v = np.random.uniform(10,100,size=1)
+                for mid in [2]:
+                    v = vals[_]
                     vdat = {
                         "measure_id":mid,"plant_id":pid,"value":v,"timestamp":ctime
                     }
                     val = Value(**vdat)
                     session.add(val)
+
+                    vd2 = {
+                        "measure_id":1,"plant_id":pid,"value":pval(v),"timestamp":ctime
+                    }
+                    val2 = Value(**vd2)
+                    session.add(val2)
+
+                    vd3 = {
+                        "measure_id":3,"plant_id":pid,"value":np.random.uniform(10,100),"timestamp":ctime
+                    }
+                    val3 = Value(**vd3)
+                    session.add(val3)
+
 
         session.commit()
 
