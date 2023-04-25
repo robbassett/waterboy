@@ -38,7 +38,6 @@ light_sensor = ADC(config['sensors']['light_pin'])
 water_pump = PWM(Pin(config['pump']['pin'],Pin.OUT))
 water_pump.freq(config['pump']['freq'])
 water_pump_duty = config['pump']['duty']
-water_pump_time = config['pump']['ontime']
 
 def read_soil_sensor(maxval=51000,minval=24400):
     raw = soil_sensor.read_u16()
@@ -49,9 +48,9 @@ def read_light_sensor():
     raw = light_sensor.read_u16()
     return raw,raw/1e3
 
-def run_pump():
+def run_pump(t):
     water_pump.duty_u16(water_pump_duty)
-    sleep(water_pump_time)
+    sleep(t)
     water_pump.duty_u16(0)
 
 def startup(base_url=BASE_URL):
@@ -73,7 +72,7 @@ def post_value(value,base_url=BASE_URL,measure_name="Soil Moisture"):
         "value":value
     }
     r = urequests.post(base_url+'/api/trace',json=body)
-    r.close()
+    return r
 
 led = Pin("LED", Pin.OUT)
 print("Checking if plant in DB...")
@@ -84,9 +83,12 @@ while True:
     led.toggle()
     if check_ss:
         raw,value = read_soil_sensor()
-        post_value(value)
+        resp = post_value(value)
         post_value(raw,measure_name="Soil Moisture Raw")
         check_ss = False
+
+        if resp.json()["pump"]:
+            run_pump(resp.json()["pump_time"])
     else:
         check_ss = True
     raw,value = read_light_sensor()

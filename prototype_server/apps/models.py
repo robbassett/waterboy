@@ -37,8 +37,8 @@ class Plant(db.Model):
     plant_name = db.Column(db.String,unique=True)
     genus = db.Column(db.String)
     species = db.Column(db.String)
-    #dry_hours = db.Column(db.Float)
-    #pump_time = db.Column(db.Float)
+    dry_hours = db.Column(db.Float)
+    pump_time = db.Column(db.Float)
     traces = db.relationship(
         Value,
         backref="plant",
