@@ -57,7 +57,7 @@ class Value(Base):
 
 Base.metadata.create_all(bind=engine)
 
-vals = [25000]*10 + [50000]*5
+vals = [25000]*3 + [50000]*12
 
 def pval(raw,maxval=51000,minval=24400):
     
