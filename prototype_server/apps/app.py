@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import config
 from models import Plant
-from plotting import get_trace
+from plotting import get_trace,output_plotly
 from image import upload_image
 import os
 from jinja2 import TemplateNotFound
@@ -27,7 +27,7 @@ def get_segment(request):
 
 @app.route("/plotting", methods=["GET"])
 def make_plot():
-    return get_trace(request.args.get('data'))
+    return output_plotly(request.args.get('data'))
 
 @app.route("/")
 def home():

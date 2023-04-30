@@ -7,6 +7,7 @@
 
 {% block content %}
 
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <div class="row">
         <div class="col-12 mb-4 mt-2">
             <div class="card bg-gray-800 border-0 shadow">
@@ -35,7 +36,7 @@
                     </div>
                 </div>
                 <div class="card-body p-2 bg-gray-300">
-                    <div class="ct-chart ct-double-octave"></div>
+                    <div id="chart" class="ct-chart ct-double-octave"></div>
                 </div>
             </div>
         </div>
@@ -117,32 +118,33 @@
 
         $.getJSON({
             url: "/plotting", data: {'data': plantName}, success: function (result) {
-                new Chartist.Line('.ct-chart', {
-                labels:result[2],
-                series: [
-                    result[0],
-                    result[1]
-                ]
-                }, {
-                showArea: true,
-                showPoint: true,
-                fullWidth: true,
-                chartPadding: {
-                    right: 40
-                },
-                axisX: {
-                    showLabel: true,
-                    showGrid: true,
-                    divisor: 5
-                },
-                lineSmooth: Chartist.Interpolation.cardinal({
-                    fillHoles: true,
-                }),
-                low: 0,
-                plugins: [
-                Chartist.plugins.tooltip()
-                ],
-                });
+                new Plotly.newPlot("chart", result, {})
+                // new Chartist.Line('.ct-chart', {
+                // labels:result[2],
+                // series: [
+                //     result[0],
+                //     result[1]
+                // ]
+                // }, {
+                // showArea: true,
+                // showPoint: true,
+                // fullWidth: true,
+                // chartPadding: {
+                //     right: 40
+                // },
+                // axisX: {
+                //     showLabel: true,
+                //     showGrid: true,
+                //     divisor: 5
+                // },
+                // lineSmooth: Chartist.Interpolation.cardinal({
+                //     fillHoles: true,
+                // }),
+                // low: 0,
+                // plugins: [
+                // Chartist.plugins.tooltip()
+                // ],
+                // });
             }
         })
     }
