@@ -32,9 +32,21 @@ def update(plant_name, plant):
 
     if existing_plant:
         update_plant = plant_schema.load(plant, session=db.session)
-        existing_plant.plant_name = update_plant.plant_name
-        existing_plant.genus = update_plant.genus
-        existing_plant.species = update_plant.species
+        if update_plant.plant_name is not None:
+            existing_plant.plant_name = update_plant.plant_name
+        if update_plant.genus is not None:
+            existing_plant.genus = update_plant.genus
+        if update_plant.species is not None:
+            existing_plant.species = update_plant.species
+        if update_plant.pump_time is not None:
+            existing_plant.pump_time = update_plant.pump_time
+        if update_plant.dry_hours is not None:
+            existing_plant.dry_hours = update_plant.dry_hours
+        if update_plant.image_loc is not None:
+            existing_plant.image_loc = update_plant.image_loc
+
+        print(existing_plant)
+
         db.session.merge(existing_plant)
         db.session.commit()
         return plant_schema.dump(existing_plant), 201

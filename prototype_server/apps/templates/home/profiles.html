@@ -18,7 +18,7 @@
                             <p class="fs-5 fw-normal mb-2 text-white">Select Plant</p>
                             <select class="form-select" name="plant-profile" id="plant-profile">
                                 {% for plant in plants %}
-                                    <option value="{{ config.ASSETS_ROOT }}/images/{{ plant.plant_name }}.jpeg|{{ plant.plant_name }}|{{ plant.genus }}|{{ plant.species }}">
+                                    <option value="{{ plant.plant_name }}">
                                         {{ plant.plant_name }} 
                                     </option>
                                 {% endfor %}
@@ -47,8 +47,14 @@
                             <hr>
                             <!-- Form -->
                             <div class="mb-4">
-                                <label for="drydays">Days to Remain Dry</label>
+                                <label for="drydays">Hours to Remain Dry</label>
                                 <input type="number" class="form-control" id="drydays">
+                            </div>
+                            <!-- End of Form -->
+                            <!-- Form -->
+                            <div class="mb-4">
+                                <label for="pumptime">Water pump time (s)</label>
+                                <input type="number" class="form-control" id="pumptime">
                             </div>
                             <!-- End of Form -->
                             <!-- Form -->
@@ -57,6 +63,21 @@
                                 <input class="form-control" type="file" id="imageFile">
                             </div>
                             <!-- End of Form -->
+                            <button class="btn btn-lg btn-primary" type="button" id="submit">Submit</button>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <!-- Info-->
+                            <div class="d-block mb-3 mb-sm-0">
+                                <h2 class="fs-3 fw-extrabold text-gray-700">Current Light:</h2>
+                                <h2 class="fs-5 fw-extrabold mb-2 text-gray-500" id="current-light"></h2>
+                            </div>
+                            <!-- End Info -->
+                            <!-- Info-->
+                            <div class="d-block mb-3 mb-sm-0">
+                                <h2 class="fs-3 fw-extrabold text-gray-700">Current Water:</h2>
+                                <h2 class="fs-5 fw-extrabold mb-2 text-gray-500" id="current-water"></h2>
+                            </div>
+                            <!-- End Info -->
                         </div>
                     </div>
                 </div>
@@ -72,19 +93,27 @@
 {% block javascripts %}
 
 <script>
-    function getImage(){
+    function getProfile(){
 
         var e = document.getElementById("plant-profile");
-        var data = e.options[e.selectedIndex].value.split("|");
-        var plantName = data[1]
-        var plantInfo = data[2]+' '+data[3]
-        document.getElementById('plant-info').innerHTML = plantInfo;
+        var plantName = e.options[e.selectedIndex].value;
+        var light = "{{light}}".substring(1, "{{light}}".length-1).split(',')[e.selectedIndex]+'%'
+        var water = "{{water}}".substring(1, "{{water}}".length-1).split(',')[e.selectedIndex]+'%'
+        document.getElementById('current-light').innerHTML = light;
+        document.getElementById('current-water').innerHTML = water;
         document.getElementById('plant-name').innerHTML = plantName;
-        document.getElementById('plant-image').src = data[0];
+        //document.getElementById('plant-image').src = data[0];
+        $.getJSON({
+            url: "/profile", data: {'data': plantName}, success: function (result) {
+                document.getElementById('plant-info').innerHTML = result['genus'] + ' ' + result['species'];
+                document.getElementById('drydays').value = result['dry_hours']
+                document.getElementById('pumptime').value = result['pump_time']
+            }
+        })
     }
-    getImage()
+    getProfile()
       
-    document.getElementById("plant-profile").onchange = getImage;
+    document.getElementById("plant-profile").onchange = getProfile;
 </script>
 
 <script>
@@ -114,6 +143,25 @@
         });
 
     }
+</script>
+
+<script>
+    function updatePlant(){
+
+        var e = document.getElementById("plant-profile");
+        var plantName = e.options[e.selectedIndex].value;
+        var dryHours = document.getElementById("drydays").value;
+        var pumpTime = document.getElementById("pumptime").value;
+        var putData = {"plant_name":plantName,"dry_hours":parseInt(dryHours),"pump_time":parseInt(pumpTime)}
+        $.ajax({
+            type: 'PUT',
+                url: '/api/plant/'+plantName,
+                contentType: 'application/json',
+                data: JSON.stringify(putData), // access in body
+            })
+    }
+
+    document.getElementById("submit").onclick = updatePlant;
 </script>
 
 {% endblock javascripts %}

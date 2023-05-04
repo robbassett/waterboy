@@ -118,33 +118,7 @@
 
         $.getJSON({
             url: "/plotting", data: {'data': plantName}, success: function (result) {
-                new Plotly.newPlot("chart", result, {})
-                // new Chartist.Line('.ct-chart', {
-                // labels:result[2],
-                // series: [
-                //     result[0],
-                //     result[1]
-                // ]
-                // }, {
-                // showArea: true,
-                // showPoint: true,
-                // fullWidth: true,
-                // chartPadding: {
-                //     right: 40
-                // },
-                // axisX: {
-                //     showLabel: true,
-                //     showGrid: true,
-                //     divisor: 5
-                // },
-                // lineSmooth: Chartist.Interpolation.cardinal({
-                //     fillHoles: true,
-                // }),
-                // low: 0,
-                // plugins: [
-                // Chartist.plugins.tooltip()
-                // ],
-                // });
+                new Plotly.newPlot("chart", result, {}, {displayModeBar:false})
             }
         })
     }

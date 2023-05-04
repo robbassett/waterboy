@@ -78,19 +78,18 @@ led = Pin("LED", Pin.OUT)
 print("Checking if plant in DB...")
 startup()
 print("Starting monitor...")
-check_ss = True
+
 while True:
     led.toggle()
-    if check_ss:
-        raw,value = read_soil_sensor()
-        resp = post_value(value)
-        post_value(raw,measure_name="Soil Moisture Raw")
-        check_ss = False
+    raw,value = read_soil_sensor()
+    resp = post_value(value)
+    post_value(raw,measure_name="Soil Moisture Raw")
+    check_ss = False
 
-        if resp.json()["pump"]:
-            run_pump(resp.json()["pump_time"])
-    else:
-        check_ss = True
+    if resp.json()["pump"]:
+        run_pump(resp.json()["pump_time"])
+        post_value(1,measure_name="Pump On")
+
     raw,value = read_light_sensor()
     post_value(value,measure_name="Light")
     post_value(raw,measure_name="Light Raw")

@@ -25,9 +25,10 @@ def get_measure_trace(plant_id,measure_name,time_period=48):
     tsel = list(np.where(x >= xstart)[0])
     x = x[tsel]
     y = y[tsel]
-    x = [(_-xend).total_seconds()/3600. for _ in x]
 
-    return x,y
+    c = "#2361ce" if "Soil" in measure_name else "#f0bc74"
+
+    return x,y,c
 
 def output_plotly(plant_name,raw=False):
     plant = Plant.query.filter(Plant.plant_name == plant_name).one_or_none()
@@ -37,18 +38,71 @@ def output_plotly(plant_name,raw=False):
 
     traces = {
         measure:get_measure_trace(plant_id,measure) for measure in [
-            "Soil Moisture"+rstr,"Light"+rstr
+            "Soil Moisture"+rstr,"Light"+rstr,"Pump On"
         ]
     }
 
     F = go.Figure()
     for k,trace in traces.items():
-        F.add_trace(go.Scatter(
-            x=trace[0],
-            y=trace[1],
-            name=k,
-            line={'shape': 'spline', 'smoothing': 0.5}
-        ))
+        if k != "Pump On":
+            F.add_trace(go.Scatter(
+                x=trace[0],
+                y=trace[1],
+                name=k,
+                line={
+                    'shape': 'spline', 
+                    'smoothing': 0.7,
+                    'color':trace[2],
+                    'width':5
+                },
+                marker={
+                    "size":15
+                },
+                fill='tozeroy',
+            ))
+        else:
+            for x in trace[0]:
+                F.add_vline(x=x, line_width=5,line_color="#2361ce")
+
+    yax = "Reading" if raw else "Percent"
+
+    F.update_layout(
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="center",
+            x=0.5
+        ),
+        paper_bgcolor="#D1D5DB",
+        plot_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=0, t=0, b=0),
+        legend_orientation="h",
+        font=dict(
+            family="Arial Black",
+            size=18,
+        ),
+        yaxis_title=yax,
+    )
+
+    F.update_xaxes(
+        showgrid=True, 
+        showline=True,
+        gridwidth=3, 
+        linewidth=3,
+        gridcolor='White',
+        linecolor='#1F2937',
+        mirror=True
+    )
+
+    F.update_yaxes(
+        showgrid=True, 
+        showline=True,
+        gridwidth=3, 
+        linewidth=3,
+        gridcolor='White',
+        linecolor='#1F2937',
+        mirror=True
+    )
 
     return json.dumps(F, cls=plotly.utils.PlotlyJSONEncoder)
 
@@ -63,7 +117,6 @@ def get_trace(plant_name,measure_name='Soil Moisture',db=db):
         (Value.plant_id == plant_id)&(Value.measure_id == measure_id)
     ).all()
 
-    x = np.array([value.timestamp for value in values])
     y = np.array([value.value for value in values])
 
     measure = Measure.query.filter(Measure.measure_name == "Light").one_or_none()
@@ -73,34 +126,7 @@ def get_trace(plant_name,measure_name='Soil Moisture',db=db):
         (Value.plant_id == plant_id)&(Value.measure_id == measure_id)
     ).all()
 
-    x2 = np.array([value.timestamp for value in values])
     y2 = np.array([value.value for value in values])
 
-    xend = x.max()+timedelta(minutes=5)
-    xstart = xend-timedelta(hours=48)
-    tsel = list(np.where(x >= xstart)[0])
-    x = x[tsel]
-    y = y[tsel]
-    xo = [(_-xend).total_seconds()/3600. for _ in x]
-
-
-    xend = x2.max()+timedelta(minutes=5)
-    xstart = xend-timedelta(hours=48)
-    tsel = list(np.where(x2 >= xstart)[0])
-    x2 = x2[tsel]
-    y2 = y2[tsel]
-
-    x2o = [(_-xend).total_seconds()/3600. for _ in x2]
-
-    yo = []
-    for _x in x2o:
-        print(np.abs(np.array(xo)-_x)*3600.)
-        if np.abs((np.array(xo)-_x)*3600.).min() < 12:
-            yo.append(y[np.argmin(np.abs((np.array(xo)-_x)))])
-        else:
-            yo.append('null')
-
-    x2o = [datetime.strftime(_,"%d/%m/%y %H:%M:%S") for _ in x2]
-
-    out = json.dumps([list(yo),list(y2),list(x2o)])
+    out = json.dumps([list(y),list(y2)])
     return out

@@ -18,6 +18,8 @@
     "plant":{
         "name":"Johnny",
         "genus":"Hamburgerium",
-        "species":"Yummium"
+        "species":"Yummium",
+        "dry_hours":72,
+        "pump_time":3
     }
 }

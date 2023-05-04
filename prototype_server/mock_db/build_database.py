@@ -40,6 +40,7 @@ class Plant(Base):
     species = Column(String)
     dry_hours = Column(Float)
     pump_time = Column(Float)
+    image_loc = Column(String)
 
 class Value(Base):
     __tablename__ = "value"
@@ -79,7 +80,8 @@ def generate_dummy_data(
         {"measure_name":"Soil Moisture","measure_units":"percent"},
         {"measure_name":"Soil Moisture Raw","measure_units":"??"},
         {"measure_name":"Light","measure_units":"percent"},
-        {"measure_name":"Light Raw","measure_units":"lux"}
+        {"measure_name":"Light Raw","measure_units":"lux"},
+        {"measure_name":"Pump On","measure_units":"bool"},
     ]
 
     with Session(engine) as session:
@@ -94,27 +96,40 @@ def generate_dummy_data(
             plant = Plant(**pdat)
             session.add(plant)
 
+            cnt = 0
             for _ in range(nval):
+                cnt += 1
                 ctime = dt.datetime.now() - dt.timedelta(hours=timedelt*(nval-(_+1)))
-                for mid in [2]:
-                    v = vals[_]
-                    vdat = {
-                        "measure_id":mid,"plant_id":pid,"value":v,"timestamp":ctime
-                    }
-                    val = Value(**vdat)
-                    session.add(val)
+                v = vals[_]
+                vdat = {
+                    "measure_id":2,"plant_id":pid,"value":v,"timestamp":ctime
+                }
+                val = Value(**vdat)
+                session.add(val)
 
-                    vd2 = {
-                        "measure_id":1,"plant_id":pid,"value":pval(v),"timestamp":ctime
-                    }
-                    val2 = Value(**vd2)
-                    session.add(val2)
+                vd2 = {
+                    "measure_id":1,"plant_id":pid,"value":pval(v),"timestamp":ctime
+                }
+                val2 = Value(**vd2)
+                session.add(val2)
 
-                    vd3 = {
-                        "measure_id":3,"plant_id":pid,"value":np.random.uniform(10,100),"timestamp":ctime
+                vd3 = {
+                    "measure_id":3,"plant_id":pid,"value":np.random.uniform(10,100),"timestamp":ctime
+                }
+                val3 = Value(**vd3)
+                session.add(val3)
+
+                vd3["measure_id"] = 4
+                vd3["value"] = vd3["value"]*1000
+                val4 = Value(**vd3)
+                session.add(val4)
+
+                if cnt%3 == 0:
+                    vd4 = {
+                        "measure_id":5,"plant_id":pid,"value":1,"timestamp":ctime
                     }
-                    val3 = Value(**vd3)
-                    session.add(val3)
+                    val5 = Value(**vd4)
+                    session.add(val5)
 
 
         session.commit()
