@@ -39,6 +39,7 @@ class Plant(db.Model):
     species = db.Column(db.String)
     dry_hours = db.Column(db.Float)
     pump_time = db.Column(db.Float)
+    image_loc = db.Column(db.String)
     traces = db.relationship(
         Value,
         backref="plant",

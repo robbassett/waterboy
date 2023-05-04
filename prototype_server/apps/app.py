@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request
 import config
 from models import Plant
-from plotting import get_trace,output_plotly
+from plotting import output_plotly,get_trace
 from image import upload_image
-import os
+from profile import get_profile_info
 from jinja2 import TemplateNotFound
 import numpy as np
 
@@ -28,6 +28,10 @@ def get_segment(request):
 @app.route("/plotting", methods=["GET"])
 def make_plot():
     return output_plotly(request.args.get('data'))
+
+@app.route("/profile",methods=["GET"])
+def get_profile():
+    return get_profile_info(request.args.get('data'))
 
 @app.route("/")
 def home():
@@ -60,9 +64,19 @@ def route_template(template):
 
         # Detect the current page
         segment = get_segment(request)
+        water,light = [],[]
+        for plant in plants: 
+            try:
+                t = get_trace(plant.plant_name).split('], [')
+                t1 = np.around(float(t[0][:-1].split(',')[-1]),1)
+                t2 = np.around(float(t[1][:-2].split(',')[-1]),1)
+            except:
+                t1,t2 = 10.0,10.0
+            water.append(t1)
+            light.append(t2)
 
         # Serve the file (if exists) from app/templates/home/FILE.html
-        return render_template("home/" + template, segment=segment, plants=plants)
+        return render_template("home/" + template, segment=segment, plants=plants, water=water, light=light)
 
     except TemplateNotFound:
         return render_template('home/page-404.html'), 404
