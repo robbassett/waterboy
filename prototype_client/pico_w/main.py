@@ -1,13 +1,8 @@
 # main.py
 
-# to be saved on raspberry pi pico w
-from utime import sleep
-from machine import ADC,Pin,PWM
-import network
-import urequests
-import os
-import ujson
+from plantNode import plantNode
 
+<<<<<<< Updated upstream
 with open('./config.json') as fp:
     config = ujson.load(fp)
 
@@ -93,3 +88,7 @@ while True:
     led.toggle()
     sleep(WAIT_TIME)
 
+=======
+monitor = plantNode()
+monitor.run()
+>>>>>>> Stashed changes
