@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request
 import config
 from models import Plant
-from plotting import get_trace
-import os
+from plotting import output_plotly,get_trace
+from image import upload_image
+from profile import get_profile_info
 from jinja2 import TemplateNotFound
 import numpy as np
+import json
 
 app = config.connex_app
 app.add_api(config.basedir / "swagger.yml") 
@@ -24,9 +26,20 @@ def get_segment(request):
     except:
         return None
 
-@app.route("/plotting", methods=["POST", "GET"])
+@app.route("/api/plotting", methods=["GET"])
 def make_plot():
-    return get_trace(request.args.get('data'))
+    return output_plotly(request.args.get('plantName'),time_period=int(request.args.get('timePeriod')))
+
+@app.route("/api/profile",methods=["GET","POST"])
+def get_profile():
+    if request.method == "POST":
+        payload = json.loads(request.data.decode())
+        with open ("static/assets/test.jpeg","wb") as imout:
+            imout.write(payload['image'].split(',')[0].encode())
+        return {},201
+
+    if request.method == "GET":
+        return get_profile_info(request.args.get('data'))
 
 @app.route("/")
 def home():
@@ -59,9 +72,19 @@ def route_template(template):
 
         # Detect the current page
         segment = get_segment(request)
+        water,light = [],[]
+        for plant in plants: 
+            try:
+                t = get_trace(plant.plant_name).split('], [')
+                t1 = np.around(float(t[0][:-1].split(',')[-1]),1)
+                t2 = np.around(float(t[1][:-2].split(',')[-1]),1)
+            except:
+                t1,t2 = 10.0,10.0
+            water.append(t1)
+            light.append(t2)
 
         # Serve the file (if exists) from app/templates/home/FILE.html
-        return render_template("home/" + template, segment=segment, plants=plants)
+        return render_template("home/" + template, segment=segment, plants=plants, water=water, light=light)
 
     except TemplateNotFound:
         return render_template('home/page-404.html'), 404

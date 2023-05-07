@@ -38,6 +38,9 @@ class Plant(Base):
     plant_name = Column(String,unique=True,nullable=False)
     genus = Column(String)
     species = Column(String)
+    dry_hours = Column(Float)
+    pump_time = Column(Float)
+    image_loc = Column(String)
 
 class Value(Base):
     __tablename__ = "value"
@@ -55,18 +58,30 @@ class Value(Base):
 
 Base.metadata.create_all(bind=engine)
 
+vals = [25000]*3 + [50000]*12
+
+def pval(raw,maxval=51000,minval=24400):
+    
+    normed = (raw-minval)/(maxval-minval)
+    return 100.*(1.-normed)
+
 def generate_dummy_data(
     plant_names = ["Jimmy","Johnny","Jerry"],
     plant_genus = ["Googly","Moogly","Halatosis"],
     plant_species = ["Tree","Shrub","Mushroomus"],
+    plant_drydays = [1,2,3],
+    plant_pumptime = [2,2,2],
     nval = 15, timedelt = 2
 ):
 
     import numpy as np
 
     MEASURES = [
-        {"measure_name":"Soil Moisture","measure_units":"wfv"},
-        {"measure_name":"Light","measure_units":"lux"}
+        {"measure_name":"Soil Moisture","measure_units":"percent"},
+        {"measure_name":"Soil Moisture Raw","measure_units":"??"},
+        {"measure_name":"Light","measure_units":"percent"},
+        {"measure_name":"Light Raw","measure_units":"lux"},
+        {"measure_name":"Pump On","measure_units":"bool"},
     ]
 
     with Session(engine) as session:
@@ -75,21 +90,47 @@ def generate_dummy_data(
             session.add(measure)
 
         pid = 0
-        for n,g,s in zip(plant_names,plant_genus,plant_species):
+        for n,g,s,dd,pt in zip(plant_names,plant_genus,plant_species,plant_drydays,plant_pumptime):
             pid += 1
-            pdat = {"plant_name":n,"genus":g,"species":s}
+            pdat = {"plant_name":n,"genus":g,"species":s,"dry_hours":dd*24.,"pump_time":pt}
             plant = Plant(**pdat)
             session.add(plant)
 
+            cnt = 0
             for _ in range(nval):
+                cnt += 1
                 ctime = dt.datetime.now() - dt.timedelta(hours=timedelt*(nval-(_+1)))
-                for mid in [1,2]:
-                    v = np.random.uniform(10,100,size=1)
-                    vdat = {
-                        "measure_id":mid,"plant_id":pid,"value":v,"timestamp":ctime
+                v = vals[_]
+                vdat = {
+                    "measure_id":2,"plant_id":pid,"value":v,"timestamp":ctime
+                }
+                val = Value(**vdat)
+                session.add(val)
+
+                vd2 = {
+                    "measure_id":1,"plant_id":pid,"value":pval(v),"timestamp":ctime
+                }
+                val2 = Value(**vd2)
+                session.add(val2)
+
+                vd3 = {
+                    "measure_id":3,"plant_id":pid,"value":np.random.uniform(10,100),"timestamp":ctime
+                }
+                val3 = Value(**vd3)
+                session.add(val3)
+
+                vd3["measure_id"] = 4
+                vd3["value"] = vd3["value"]*1000
+                val4 = Value(**vd3)
+                session.add(val4)
+
+                if cnt%3 == 0:
+                    vd4 = {
+                        "measure_id":5,"plant_id":pid,"value":1,"timestamp":ctime
                     }
-                    val = Value(**vdat)
-                    session.add(val)
+                    val5 = Value(**vd4)
+                    session.add(val5)
+
 
         session.commit()
 

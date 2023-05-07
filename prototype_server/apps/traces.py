@@ -1,7 +1,8 @@
 from flask import abort
 from config import db
-from models import Plant, Measure, value_schema
+from models import Plant, Measure, Value, value_schema
 from datetime import datetime
+import numpy as np
 
 def create(value):
     plant_name = value.get("plant_name")
@@ -25,4 +26,30 @@ def create(value):
     plant.traces.append(new_value)
     db.session.commit()
 
-    return value_schema.dump(new_value),201
+    response = value_schema.dump(new_value)
+    response["pump"] = False
+    if value.get("measure_name") == "Soil Moisture Raw":
+        values = Value.query.filter(
+            (Value.plant_id == plant.plant_id)&(Value.measure_id == measure.measure_id)
+        ).all()
+        x2 = np.array([value.timestamp for value in values])
+        y2 = np.array([value.value for value in values])
+
+        order = np.argsort(x2)[::-1]
+        x2 = x2[order]
+        y2 = y2[order]
+
+        for i,y in enumerate(y2):
+            if y < 45000:
+                break
+
+        print(datetime.now()-x2[i])
+        response["pump_time"] = plant.pump_time
+        try:
+            if (datetime.now()-x2[i]).total_seconds()/3600. > plant.dry_hours:
+                response["pump"] = True
+        except:
+            pass
+        print(response)
+
+    return response,201

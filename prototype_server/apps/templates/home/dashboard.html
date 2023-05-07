@@ -7,11 +7,12 @@
 
 {% block content %}
 
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <div class="row">
         <div class="col-12 mb-4 mt-2">
             <div class="card bg-gray-800 border-0 shadow">
                 <div class="row">
-                    <div class="col-9">
+                    <div class="col-3">
                         <div class="card-header d-sm-flex flex-row align-items-center flex-0">
                             <div class="d-block mb-3 mb-sm-0">
                                 <div class="fs-5 fw-normal mb-2 text-white" id="plant-info"></div>
@@ -23,7 +24,7 @@
                         <div class="card-header d-sm-flex flex-row align-items-center flex-0">
                             <div class="col-12">
                                 <p class="fs-5 fw-normal mb-2 text-white">Select Plant to Plot</p>
-                                <select class="form-select" name="plant-plot" id="plant-plot" onchange="plot_trace(this.value)">
+                                <select class="form-select" name="plant-plot" id="plant-plot" onchange="plot_trace()">
                                     {% for plant in plants %}
                                         <option value="{{ plant.plant_name }}|{{ plant.genus }}|{{ plant.species }}">
                                             {{ plant.plant_name }} 
@@ -33,9 +34,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-3">
+                        <div class="card-header d-sm-flex flex-row align-items-center flex-0">
+                            <div class="col-12">
+                                <p class="fs-5 fw-normal mb-2 text-white">Set Time Period (h)</p>
+                                <input type="number" class="form-control" id="time-plot" value=6 oninput="plot_trace()">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body p-2 bg-gray-300">
-                    <div class="ct-chart ct-double-octave"></div>
+                    <div id="chart" class="ct-chart ct-double-octave"></div>
                 </div>
             </div>
         </div>
@@ -51,7 +60,7 @@
                         {% for plant in plants %}
                             <div class="row mb-4">
                                 <div class="col-auto">
-                                    <svg class="icon icon-sm text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                                    <img src="{{ config.ASSETS_ROOT }}/img/icons/watering-can.svg" height="40" width="40">
                                 </div>
                                 <div class="col">
                                     <div class="progress-wrapper">
@@ -80,7 +89,7 @@
                         {% for plant in plants %}
                             <div class="row mb-4">
                                 <div class="col-auto">
-                                    <svg class="icon icon-sm text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                                    <img src="{{ config.ASSETS_ROOT }}/img/icons/sun.svg" height="40" width="40">
                                 </div>
                                 <div class="col">
                                     <div class="progress-wrapper">
@@ -114,36 +123,19 @@
         var plantInfo = plant[1]+' '+plant[2]
         document.getElementById('plant-info').innerHTML = plantInfo;
         document.getElementById('plant-name').innerHTML = plantName;
+        var time_period = document.getElementById('time-plot').value
 
         $.getJSON({
-            url: "/plotting", data: {'data': plantName}, success: function (result) {
-                new Chartist.Line('.ct-chart', {
-                series: [
-                    result[0],
-                    result[1]
-                ]
-                }, {
-                showArea: true,
-                showPoint: true,
-                fullWidth: true,
-                chartPadding: {
-                    right: 40
-                },
-                axisX: {
-                    showLabel: true,
-                    showGrid: true,
-                    divisor: 5
-                },
-                plugins: [
-                Chartist.plugins.tooltip()
-                ],
-                });
+            url: "/api/plotting", data: {'plantName': plantName,'timePeriod':time_period}, success: function (result) {
+                new Plotly.newPlot("chart", result, {}, {displayModeBar:false})
             }
         })
     }
     notEmpty()
       
     document.getElementById("plant-plot").onchange = notEmpty;
+    document.getElementById("time-plot",oninput = notEmpty);
+    document.getElementById("time-plot",onclick = notEmpty);
 </script>
 
 {% endblock javascripts %}

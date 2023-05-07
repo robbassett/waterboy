@@ -31,6 +31,10 @@ components:
           type: "string"
         species:
           type: "string"
+        dry_hours:
+          type: "number"
+        pump_time:
+          type: "number"
     Value:
       type: "object"
       required:
