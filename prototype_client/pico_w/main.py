@@ -32,6 +32,8 @@ WAIT_TIME -= 1
 PLANT_NAME = config['plant']['name'].replace(' ','_')
 GENUS = config['plant']['genus']
 SPECIES = config['plant']['species']
+PUMP_TIME = config['plant']['pump_time']
+DRY_HOURS = config['plant']['dry_hours']
 
 soil_sensor = ADC(config['sensors']['soil_pin'])
 light_sensor = ADC(config['sensors']['light_pin'])
@@ -60,7 +62,9 @@ def startup(base_url=BASE_URL):
         body = {
             "plant_name":PLANT_NAME,
             "genus":GENUS,
-            "species":SPECIES
+            "species":SPECIES,      
+            "pump_time":PUMP_TIME,
+            "dry_hours":DRY_HOURS
         }
         r = urequests.post(base_url+'/api/plant',json=body)
         r.close()
@@ -82,13 +86,13 @@ print("Starting monitor...")
 while True:
     led.toggle()
     raw,value = read_soil_sensor()
-    resp = post_value(value)
-    post_value(raw,measure_name="Soil Moisture Raw")
-    check_ss = False
+    post_value(value)
+    resp = post_value(raw,measure_name="Soil Moisture Raw")
+    print(resp.json())
 
     if resp.json()["pump"]:
         run_pump(resp.json()["pump_time"])
-        post_value(1,measure_name="Pump On")
+        post_value(["pump_time"],measure_name="Pump On")
 
     raw,value = read_light_sensor()
     post_value(value,measure_name="Light")

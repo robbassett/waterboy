@@ -40,12 +40,16 @@ def create(value):
         y2 = y2[order]
 
         for i,y in enumerate(y2):
-            if y < 48000:
+            if y < 45000:
                 break
 
-        print((datetime.now()-x2[i]).total_seconds()/3600.)
-        if (datetime.now()-x2[i]).total_seconds()/3600. > plant.dry_hours:
-            response["pump"] = True
-    response["pump_time"] = 1
+        print(datetime.now()-x2[i])
+        response["pump_time"] = plant.pump_time
+        try:
+            if (datetime.now()-x2[i]).total_seconds()/3600. > plant.dry_hours:
+                response["pump"] = True
+        except:
+            pass
+        print(response)
 
     return response,201

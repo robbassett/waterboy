@@ -6,6 +6,7 @@ from image import upload_image
 from profile import get_profile_info
 from jinja2 import TemplateNotFound
 import numpy as np
+import json
 
 app = config.connex_app
 app.add_api(config.basedir / "swagger.yml") 
@@ -25,13 +26,20 @@ def get_segment(request):
     except:
         return None
 
-@app.route("/plotting", methods=["GET"])
+@app.route("/api/plotting", methods=["GET"])
 def make_plot():
-    return output_plotly(request.args.get('data'))
+    return output_plotly(request.args.get('plantName'),time_period=int(request.args.get('timePeriod')))
 
-@app.route("/profile",methods=["GET"])
+@app.route("/api/profile",methods=["GET","POST"])
 def get_profile():
-    return get_profile_info(request.args.get('data'))
+    if request.method == "POST":
+        payload = json.loads(request.data.decode())
+        with open ("static/assets/test.jpeg","wb") as imout:
+            imout.write(payload['image'].split(',')[0].encode())
+        return {},201
+
+    if request.method == "GET":
+        return get_profile_info(request.args.get('data'))
 
 @app.route("/")
 def home():
