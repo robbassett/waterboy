@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Transactions {% endblock %} 
+{% block title %} Profiles {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -18,7 +18,7 @@
                             <p class="fs-5 fw-normal mb-2 text-white">Select Plant</p>
                             <select class="form-select" name="plant-profile" id="plant-profile">
                                 {% for plant in plants %}
-                                    <option value="{{ plant.plant_name }}">
+                                    <option value="{{ config.ASSETS_ROOT }}|{{ plant.plant_name }}">
                                         {{ plant.plant_name }} 
                                     </option>
                                 {% endfor %}
@@ -58,9 +58,14 @@
                             </div>
                             <!-- End of Form -->
                             <!-- Form -->
-                            <div class="mb-3">
-                                <label for="imageFile" class="form-label">Upload New Image</label>
-                                <input class="form-control" type="file" id="imageFile">
+                            <div class="row">
+                                <div class="mb-3 col-9">
+                                    <label for="imageFile" class="form-label">Upload New Image</label>
+                                    <input class="form-control" type="file" id="imageFile">
+                                </div>
+                                <div class="col-3">
+                                    <img id="thumbnail">
+                                </div>
                             </div>
                             <!-- End of Form -->
                             <button class="btn btn-lg btn-primary" type="button" id="submit">Submit</button>
@@ -96,18 +101,23 @@
     function getProfile(){
 
         var e = document.getElementById("plant-profile");
-        var plantName = e.options[e.selectedIndex].value;
+        var data = e.options[e.selectedIndex].value.split('|')
+        var plantName = data[1];
+        var plantImageLoc = data[0] + '/images/'+plantName+'.jpeg';
+        //var reader = new FileReader();
+        // var plantImage = new Image();
         var light = "{{light}}".substring(1, "{{light}}".length-1).split(',')[e.selectedIndex]+'%'
         var water = "{{water}}".substring(1, "{{water}}".length-1).split(',')[e.selectedIndex]+'%'
         document.getElementById('current-light').innerHTML = light;
         document.getElementById('current-water').innerHTML = water;
         document.getElementById('plant-name').innerHTML = plantName;
-        //document.getElementById('plant-image').src = data[0];
+        //document.getElementById('plant-image').src = data[0] + 'images/'+plantName+'.jpeg';
         $.getJSON({
-            url: "/profile", data: {'data': plantName}, success: function (result) {
+            url: "/api/profile", data: {'data': plantName}, success: function (result) {
                 document.getElementById('plant-info').innerHTML = result['genus'] + ' ' + result['species'];
                 document.getElementById('drydays').value = result['dry_hours']
                 document.getElementById('pumptime').value = result['pump_time']
+                document.getElementById('plant-image').src = result['image_loc']
             }
         })
     }
@@ -121,7 +131,7 @@
         var el = document.getElementById("plant-profile");
         var image_loc = el.options[el.selectedIndex].value
         var fileInput = document.getElementById('imageFile');
-        var plant_image = document.getElementById("plant-image");
+        var thumbnail = document.getElementById("thumbnail");
 
         fileInput.addEventListener('change', function(e) {
             var file = fileInput.files[0];
@@ -135,7 +145,7 @@
                     var img = new Image();
                     img.src = reader.result;
 
-                    plant_image.src = img.src;
+                    thumbnail.src = img.src;
                 }
 
                 reader.readAsDataURL(file); 
@@ -149,16 +159,40 @@
     function updatePlant(){
 
         var e = document.getElementById("plant-profile");
-        var plantName = e.options[e.selectedIndex].value;
+        var data = e.options[e.selectedIndex].value.split('|');
+        var plantName = data[1];
+        var imageFile = document.getElementById('imageFile').files.item(0)
         var dryHours = document.getElementById("drydays").value;
         var pumpTime = document.getElementById("pumptime").value;
-        var putData = {"plant_name":plantName,"dry_hours":parseInt(dryHours),"pump_time":parseInt(pumpTime)}
+        var putData = {
+            "plant_name":plantName,
+            "dry_hours":parseInt(dryHours),
+            "pump_time":parseInt(pumpTime)
+        }
+        if (imageFile) {
+            img_src = document.getElementById("thumbnail").src
+            document.getElementById("plant-image").src = img_src
+            putData["image_loc"] = data[0] + '/images/'+ imageFile.name
+
+            postData = {
+                "loc":putData['image_loc'],
+                "image":img_src
+            }
+            $.post({
+                url:"/api/profile",
+                data:JSON.stringify(postData),
+                dataType: "json",
+                contentType: 'application/json'
+            })
+        }
+
         $.ajax({
             type: 'PUT',
                 url: '/api/plant/'+plantName,
                 contentType: 'application/json',
                 data: JSON.stringify(putData), // access in body
             })
+
     }
 
     document.getElementById("submit").onclick = updatePlant;

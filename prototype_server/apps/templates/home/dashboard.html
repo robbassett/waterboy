@@ -12,7 +12,7 @@
         <div class="col-12 mb-4 mt-2">
             <div class="card bg-gray-800 border-0 shadow">
                 <div class="row">
-                    <div class="col-9">
+                    <div class="col-3">
                         <div class="card-header d-sm-flex flex-row align-items-center flex-0">
                             <div class="d-block mb-3 mb-sm-0">
                                 <div class="fs-5 fw-normal mb-2 text-white" id="plant-info"></div>
@@ -24,13 +24,21 @@
                         <div class="card-header d-sm-flex flex-row align-items-center flex-0">
                             <div class="col-12">
                                 <p class="fs-5 fw-normal mb-2 text-white">Select Plant to Plot</p>
-                                <select class="form-select" name="plant-plot" id="plant-plot" onchange="plot_trace(this.value)">
+                                <select class="form-select" name="plant-plot" id="plant-plot" onchange="plot_trace()">
                                     {% for plant in plants %}
                                         <option value="{{ plant.plant_name }}|{{ plant.genus }}|{{ plant.species }}">
                                             {{ plant.plant_name }} 
                                         </option>
                                     {% endfor %}
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card-header d-sm-flex flex-row align-items-center flex-0">
+                            <div class="col-12">
+                                <p class="fs-5 fw-normal mb-2 text-white">Set Time Period (h)</p>
+                                <input type="number" class="form-control" id="time-plot" value=6 oninput="plot_trace()">
                             </div>
                         </div>
                     </div>
@@ -115,9 +123,10 @@
         var plantInfo = plant[1]+' '+plant[2]
         document.getElementById('plant-info').innerHTML = plantInfo;
         document.getElementById('plant-name').innerHTML = plantName;
+        var time_period = document.getElementById('time-plot').value
 
         $.getJSON({
-            url: "/plotting", data: {'data': plantName}, success: function (result) {
+            url: "/api/plotting", data: {'plantName': plantName,'timePeriod':time_period}, success: function (result) {
                 new Plotly.newPlot("chart", result, {}, {displayModeBar:false})
             }
         })
@@ -125,6 +134,8 @@
     notEmpty()
       
     document.getElementById("plant-plot").onchange = notEmpty;
+    document.getElementById("time-plot",oninput = notEmpty);
+    document.getElementById("time-plot",onclick = notEmpty);
 </script>
 
 {% endblock javascripts %}

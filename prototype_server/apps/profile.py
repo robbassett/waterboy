@@ -5,7 +5,7 @@ from models import Plant, Measure, Value, value_schema
 import json
 
 def get_profile_info(plant_name):
-    plant = Plant.query.filter(Plant.plant_name == plant_name).one_or_none()
+    plant = Plant.query.filter(Plant.plant_name == plant_name.strip()).one_or_none()
     genus = plant.genus
     species = plant.species
     dry_hours = plant.dry_hours
@@ -19,6 +19,4 @@ def get_profile_info(plant_name):
         "pump_time":pump_time,
         "image_loc":image_loc
     })
-
-
     
